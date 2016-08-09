@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Expose Yourself</title>
+  <meta name="description" content="Exposing Editor">
+  <meta name="author" content="Nicholas Montaño">
+</head>
+<div id="main"></div>
+<script src="main.js"></script>
+<script>
+    var node = document.getElementById('main');
+    var app = Elm.Main.embed(node);
+
+    // via
+    // https://github.com/evancz/elm-todomvc/blob/bc37c9b97db9e1c1d5db9debf0d900c77461e584/index.html#L19
+    // Takes a selector-query (CSS selector-style):
+    // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
+    //
+    // The `setTimeout` function is used solely because we run this command at
+    // the same time a new line is being created, which means that without a
+    // delay the line/node likely won't exist when the function runs!
+    app.ports.focusWithDelay.subscribe(function(selector) {
+        setTimeout(function() {
+            var nodes = document.querySelectorAll(selector);
+            if (nodes.length === 1 && document.activeElement !== nodes[0]) {
+                nodes[0].focus();
+            };
+        }, 50);
+    });
+
+    app.ports.focus.subscribe(function(selector) {
+        var nodes = document.querySelectorAll(selector);
+        if (nodes.length === 1 && document.activeElement !== nodes[0]) {
+            nodes[0].focus();
+        };
+    });
+
+    // see `selectionStart` from
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement
+    app.ports.queryCaretPosition.subscribe(function(currentLine) {
+        var node = document.activeElement;
+        var caretPos = node.selectionStart;
+        app.ports.getCaretPosition.send([currentLine, caretPos]);
+    });
+</script>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Expose Yourself</title>
+  <meta name="description" content="Exposing Editor">
+  <meta name="author" content="Nicholas Montaño">
+</head>
+<div id="main"></div>
+<script src="main.js"></script>
+<script>
+    var node = document.getElementById('main');
+    var app = Elm.Main.embed(node);
+
+    // see `selectionStart` from
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement
+    app.ports.queryCaretPosition.subscribe(function() {
+        var editor = document.getElementById("editor");
+        var caretPos = editor.selectionStart;
+        app.ports.caretPosition.send(caretPos);
+    });
+
+
+    app.ports.queryCharAt.subscribe(function(index) {
+        var editor = document.getElementById("editor");
+        var content = editor.value // string contents of the textarea
+        var char = content.charAt(index); // as a String
+        app.ports.charAtUncurried.send([index, char]);
+    });
+</script>
